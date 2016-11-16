@@ -63,13 +63,13 @@ Example:
     @apply(--shadow-elevation-4dp);
   }
   .post-card .title {
-    color: var(--paper-blue-700);
+    color: var(--paper-blue-900);
     text-decoration: none;
     font-size:1rem;
   }
   .post-card .title:hover,
   .post-card .title:focus {
-    color: var(--paper-cyan-900);
+    color: #269efb;
   }
   .post-card .content{
     font-size:0.8rem;
@@ -83,11 +83,12 @@ Example:
     text-align: right;
   }
   .header {
-    background-color:var(--paper-orange-900);
+    background-color:#a72100;
+    /*background-color:var(--paper-deep-orange-a700);*/
     margin-left:0;
     font-size:1rem;
     padding:0 10px;
-    color:#eee;
+    color:var(--paper-grey-50);
   }
   ::-webkit-scrollbar-track
   {
@@ -105,6 +106,10 @@ Example:
     border-radius: 10px;
     background-color: var(--paper-deep-orange-900);
   }
+  google-feeds{
+    display:none;
+    visibility: hidden;
+  }
   </style>
   <div class="vertical layout body">
     <div class="header horizontal layout center">
@@ -119,7 +124,7 @@ Example:
       <template is="dom-repeat" items="{{feeds}}" as="feed">
         <template is="dom-repeat" items="{{feed.entries}}" sort="_sort">
           <div class="post-card">
-            <a href$="{{item.link}}" target="_blank" class="title">{{item.title}}</a>
+            <a rel="alternate" title="{{item.title}}" href$="{{item.link}}" target="_blank" class="title">{{item.title}}</a>
             <p class="content snippet">{{item.contentSnippet}}</p>
             <div class="footer horizontal layout">
               <p class="publishedDate">{{_getFromNow(item.publishedDate)}}</p>
