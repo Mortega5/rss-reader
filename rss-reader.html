@@ -1,0 +1,181 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<script src="../moment/moment.js"></script>
+<link rel="import" href="../google-feeds/google-feeds.html" />
+<link rel="import" href="../paper-toolbar/paper-toolbar.html" />
+<link rel="import" href="../paper-styles/shadow.html">
+<link rel="import" href="../paper-styles/color.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+<rss-reader></rss-reader>
+
+Example:
+
+<rss-reader>
+<h2>Hello rss-reader</h2>
+</rss-reader>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="rss-reader">
+  <template>
+  <style is="custom-style" include="iron-flex">
+  :host {
+    display: inline-block;
+    box-sizing: border-box;
+    width: var(--rss-reader-width,250px);
+    height: var(--rss-reader-height, 300px);
+    /*padding:5px 15px;*/
+    background-color: var(--google-grey-300);
+    font-family: 'RobotoDraft',sans-serif;
+    @apply(--shadow-elevation-2dp);
+  }
+  .body {
+    height: 100%;
+    width: 100%;
+  }
+  .posts-container{
+    overflow: auto;
+  }
+  .post-card {
+    width: calc(100% - 30px);
+    box-sizing: border-box;
+    background-color: var(--rss-reader-background, white);
+    margin:10px 15px;
+    padding:8px 15px;
+    @apply(--shadow-elevation-4dp);
+  }
+  .post-card .title {
+    color: var(--paper-blue-700);
+    text-decoration: none;
+    font-size:1rem;
+  }
+  .post-card .title:hover,
+  .post-card .title:focus {
+    color: var(--paper-cyan-900);
+  }
+  .post-card .content{
+    font-size:0.8rem;
+  }
+  .post-card .footer{
+    font-size:0.6em;
+    color: var(--paper-grey-800);
+    position:relative;
+  }
+  .footer .author {
+    text-align: right;
+  }
+  .header {
+    background-color:var(--paper-orange-900);
+    margin-left:0;
+    font-size:1rem;
+    padding:0 10px;
+    color:#eee;
+  }
+  ::-webkit-scrollbar-track
+  {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
+  ::-webkit-scrollbar
+  {
+    width: 8px;
+    background-color: #F5F5F5;
+  }
+  ::-webkit-scrollbar-thumb
+  {
+    border-radius: 10px;
+    background-color: var(--paper-deep-orange-900);
+  }
+  </style>
+  <div class="vertical layout body">
+    <div class="header horizontal layout center">
+      <p class="title flex">Rss source</p>
+      <i class="material-icons">rss_feed</i>
+    </div>
+    <div class="posts-container flex">
+      <template is="dom-repeat" items="{{_array_url}}">
+        <google-feeds feed="{{item}}" count="{{count}}"
+        on-google-feeds-response="feedResponse"></google-feeds>
+      </template>
+      <template is="dom-repeat" items="{{feeds}}" as="feed">
+        <template is="dom-repeat" items="{{feed.entries}}" sort="_sort">
+          <div class="post-card">
+            <a href$="{{item.link}}" target="_blank" class="title">{{item.title}}</a>
+            <p class="content snippet">{{item.contentSnippet}}</p>
+            <div class="footer horizontal layout">
+              <p class="publishedDate">{{_getFromNow(item.publishedDate)}}</p>
+              <p class="author flex">{{item.author}}</p>
+            </div>
+          </div>
+        </template>
+      </template>
+    </div>
+  </div>
+</template>
+
+<script>
+Polymer({
+  is: 'rss-reader',
+  properties: {
+    url:{
+      type:String,
+    },
+    entities: {
+      type:Array,
+      value: function(){return [];},
+    },
+    count:{
+      type:Number,
+      value:30
+    },
+    language:{
+      type:String,
+      value: 'en',
+      observer: 'setLanguage'
+    },
+    feeds: {
+      type:Array,
+      value: []
+    },
+    _array_url: {
+      type:Array,
+      computed: '_getArrayFromUrl(url)'
+    }
+  },
+  _getFromNow: function(date){
+    return moment(new Date(date)).fromNow();
+  },
+  setLanguage: function(newValue){
+    if (moment && newValue) moment.locale(newValue);
+  },
+  _sort: function(a, b){
+    return new Date(b.publishedDate) -new Date(a.publishedDate);
+  },
+  _getArrayFromUrl: function(url){
+    return url? url.split(';'):[];
+  },
+  feedResponse:function(e,d){
+    this.push('feeds',d.feed);
+  }
+});
+</script>
+</dom-module>
